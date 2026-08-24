@@ -51,7 +51,12 @@ async def send_message(
     missing = []
     lead_capture_required = False
 
-    if lead is None and intent in LEAD_TRIGGER_INTENTS:
+    from app.leads.lead_service import EMAIL_RE, PHONE_RE
+
+    has_contact = bool(
+        EMAIL_RE.search(payload.message) or PHONE_RE.search(payload.message)
+    )
+    if lead is None and (intent in LEAD_TRIGGER_INTENTS or has_contact):
         lead = await create_draft_lead(db, session.id)
 
     if lead and lead.status != "complete":
