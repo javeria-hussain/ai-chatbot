@@ -1,3 +1,6 @@
+import time
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,15 +8,15 @@ from app.chat.history import get_or_create_session, get_recent_history, save_mes
 from app.chat.intent_service import detect_intent
 from app.chat.orchestrator import ChatOrchestrator
 from app.core.limiter import limiter
+from app.core.logging_config import logger
 from app.db.session import get_db
 from app.leads.lead_service import (
     create_draft_lead,
     finalize_if_complete,
-    get_draft_lead,
+    get_lead_for_session,
     missing_fields,
-    next_missing_field,
-    update_lead_field,
 )
+from app.leads.notification_service import send_lead_notification
 from app.leads.validators import validate_field
 from app.schemas.chat import ChatMessageRequest, ChatMessageResponse
 
@@ -30,6 +33,9 @@ async def send_message(
     payload: ChatMessageRequest,
     db: AsyncSession = Depends(get_db),
 ):
+    request_id = str(uuid.uuid4())
+    start_time = time.time()
+
     session = await get_or_create_session(db, payload.session_id)
     history = await get_recent_history(db, session.id)
 
@@ -38,32 +44,15 @@ async def send_message(
         db, session.id, role="user", content=payload.message, intent=intent
     )
 
-    from app.leads.validators import validate_field
-    from app.leads.notification_service import send_lead_notification
-
-    lead = await get_draft_lead(db, session.id)
-    lead_newly_created = False
+    lead = await get_lead_for_session(db, session.id)
     field_error = None
     just_completed = False
+    notification_sent = False
 
     if lead is None and intent in LEAD_TRIGGER_INTENTS:
         lead = await create_draft_lead(db, session.id)
-        lead_newly_created = True
 
-    if lead and not lead_newly_created:
-        field = next_missing_field(lead)
-        if field:
-            field_error = validate_field(field, payload.message)
-            if field_error is None:
-                await update_lead_field(db, lead, field, payload.message)
-                just_completed = await finalize_if_complete(db, lead)
-
-    notification_sent = False
-    if just_completed:
-        notify_result = await send_lead_notification(db, session, lead)
-        notification_sent = notify_result.success
-
-    if lead:
+    if lead and lead.status != "complete":
         missing = missing_fields(lead)
         lead_capture_required = len(missing) > 0
     else:
@@ -75,6 +64,7 @@ async def send_message(
             db=db,
             user_message=payload.message,
             chat_history=history,
+            lead_already_captured=(lead is not None and lead.status == "complete"),
         )
     except Exception as e:
         await db.rollback()
@@ -95,6 +85,14 @@ async def send_message(
 
     await save_message(db, session.id, role="assistant", content=answer)
     await db.commit()
+
+    latency_ms = round((time.time() - start_time) * 1000, 2)
+    logger.info(
+        f"request_id={request_id} latency_ms={latency_ms} "
+        f"intent={intent} sources_used={result['sources_used']} "
+        f"grounded={result['grounded']} lead_submitted={just_completed} "
+        f"notification_sent={notification_sent}"
+    )
 
     return ChatMessageResponse(
         session_id=session.session_token,

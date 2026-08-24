@@ -11,10 +11,10 @@ async def get_or_create_session(db: AsyncSession, session_token: UUID | None) ->
         session = result.scalar_one_or_none()
         if session:
             return session
-    # Naya session banao agar mila nahi ya diya hi nahi gaya
+    
     session = ChatSession()
     db.add(session)
-    await db.flush()  # id generate karne ke liye, commit ke bina
+    await db.flush()  
     return session
 
 

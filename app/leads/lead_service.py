@@ -51,3 +51,14 @@ async def finalize_if_complete(db: AsyncSession, lead: LeadSubmission) -> bool:
         await db.flush()
         return True
     return False
+
+
+async def get_lead_for_session(
+    db: AsyncSession, session_id: UUID
+) -> LeadSubmission | None:
+    result = await db.execute(
+        select(LeadSubmission)
+        .where(LeadSubmission.session_id == session_id)
+        .order_by(LeadSubmission.created_at.desc())
+    )
+    return result.scalars().first()

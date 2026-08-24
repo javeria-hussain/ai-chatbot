@@ -1,0 +1,74 @@
+[
+    {
+        "id": "EXP-001",
+        "query": "wat do yall do",
+        "expected_record": "company_001",
+        "expected_intent": "company_overview"
+    },
+    {
+        "id": "EXP-002",
+        "query": "pricing pls",
+        "expected_record": "phase2_pricing_001",
+        "expected_intent": "pricing"
+    },
+    {
+        "id": "EXP-003",
+        "query": "how much for a chatbot",
+        "expected_record": "phase2_pricing_001",
+        "expected_intent": "pricing"
+    },
+    {
+        "id": "EXP-004",
+        "query": "can u make like an AI bot for my website",
+        "expected_record": "service_007",
+        "expected_intent": "ai_chatbots"
+    },
+    {
+        "id": "EXP-005",
+        "query": "need someone to automate my leads",
+        "expected_record": "conversation_002",
+        "expected_intent": "conversation_example"
+    },
+    {
+        "id": "EXP-006",
+        "query": "do u guys do shopify stuff",
+        "expected_record": "faq_010",
+        "expected_intent": "faq"
+    },
+    {
+        "id": "EXP-007",
+        "query": "whats your tech stack",
+        "expected_record": "tech_001",
+        "expected_intent": "technology_stack"
+    },
+    {
+        "id": "EXP-008",
+        "query": "i wanna see past work yall done",
+        "expected_record": "phase2_portfolio_001",
+        "expected_intent": "portfolio_question"
+    },
+    {
+        "id": "EXP-009",
+        "query": "can somebody call me about my project",
+        "expected_record": "phase2_lead_capture_001",
+        "expected_intent": "lead_capture"
+    },
+    {
+        "id": "EXP-010",
+        "query": "old system needs ai added to it",
+        "expected_record": "faq_009",
+        "expected_intent": "faq"
+    },
+    {
+        "id": "EXP-011",
+        "query": "do you do backend stuff",
+        "expected_record": "service_014",
+        "expected_intent": "backend_development"
+    },
+    {
+        "id": "EXP-012",
+        "query": "mobile app dev possible?",
+        "expected_record": "faq_003",
+        "expected_intent": "faq"
+    }
+]

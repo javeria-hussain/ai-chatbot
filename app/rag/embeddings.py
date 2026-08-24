@@ -3,7 +3,6 @@ os.environ["HF_HUB_OFFLINE"] = "1"
 from sentence_transformers import SentenceTransformer
 from app.core.config import settings
 
-# Model ek baar load hota hai (thoda time lega pehli baar)
 _model = SentenceTransformer(settings.embedding_model.replace("sentence-transformers/", ""))
 
 

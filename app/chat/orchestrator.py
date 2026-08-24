@@ -13,12 +13,13 @@ class ChatOrchestrator:
         db: AsyncSession,
         user_message: str,
         chat_history: list[dict] | None = None,
+        lead_already_captured: bool = False,
     ) -> dict:
-        # Step A: Relevant chunks retrieve karo (Day 3 wala kaam)
+        # Step A: Retrive relvent chunks
         results = await self.retriever.retrieve(session=db, query=user_message)
         context = self.retriever.build_context(results)
 
-        # Step B: Agar kuch bhi relevant nahi mila -> fallback
+        # Step B: Nothing relevent found -> fallback
         if not context.strip():
             return {
                 "answer": (
@@ -29,19 +30,27 @@ class ChatOrchestrator:
                 "grounded": False,
             }
 
-        # Step C: System prompt mein context bhar do
+        # Step C: fill context in system form
+        extra_instruction = ""
+        if lead_already_captured:
+            extra_instruction = (
+                "\n\nIMPORTANT: This visitor's contact details (name, email, phone) "
+                "have already been collected. Do NOT ask for their name, email, or "
+                "phone number again — just answer their question normally."
+            )
+
         system_message = {
             "role": "system",
-            "content": SYSTEM_PROMPT.format(context=context),
+            "content": SYSTEM_PROMPT.format(context=context) + extra_instruction,
         }
 
-        # Step D: Conversation history + naya message jodo
+        # Step D: Conversation history + new msg
         messages = [system_message]
         if chat_history:
             messages.extend(chat_history)
         messages.append({"role": "user", "content": user_message})
 
-        # Step E: Groq se final answer generate karo
+        # Step E: generate final answer from groq
         answer = await self.llm.generate(messages)
 
         return {

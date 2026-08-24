@@ -7,7 +7,8 @@ from app.db.models import ChatSession, LeadSubmission
 from app.schemas.lead import LeadCaptureRequest, LeadCaptureResponse
 from app.leads.validators import validate_field
 from app.leads.lead_service import get_draft_lead, create_draft_lead
-
+from app.leads.notification_service import send_lead_notification
+from app.leads.notification_service import send_lead_notification
 router = APIRouter()
 
 
@@ -37,5 +38,7 @@ async def submit_lead(payload: LeadCaptureRequest, db: AsyncSession = Depends(ge
     lead.message = payload.message
     lead.status = "complete"
     await db.commit()
+
+    notification_result = await send_lead_notification(db, session, lead)
 
     return LeadCaptureResponse(success=True, status="complete")

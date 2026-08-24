@@ -1,8 +1,9 @@
 from app.schemas.notification import NotificationPayload
+import html
 
 
 def _row(label: str, value: str | None) -> str:
-    display = value if value else "Not provided"
+    display = html.escape(value) if value else "Not provided"
     return f"""
     <tr>
       <td style="padding:6px 12px;font-weight:bold;color:#333;white-space:nowrap;">{label}</td>
@@ -28,7 +29,7 @@ def render_lead_notification(payload: NotificationPayload) -> tuple[str, str]:
         ]
     )
 
-    conversation_html = payload.conversation_summary.replace("\n", "<br>")
+    conversation_html = html.escape(payload.conversation_summary).replace("\n", "<br>")
 
     html_body = f"""
     <html>

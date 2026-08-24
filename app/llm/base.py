@@ -4,8 +4,7 @@ from typing import Optional
 
 class LLMProvider(ABC):
     """
-    Sabhi LLM providers (Groq, kal koi aur) is interface ko follow karenge.
-    Chat service sirf yeh methods jaanega, provider ki details nahi.
+    All LLM providers (Groq, or anyone else tomorrow) will follow this interface. The chat service will only know these methods, not the provider details.
     """
 
     @abstractmethod
@@ -17,6 +16,6 @@ class LLMProvider(ABC):
     ) -> str:
         """
         messages: [{"role": "system"/"user"/"assistant", "content": "..."}]
-        Return: model ka text response (string)
+        Return: model's response (string)
         """
         raise NotImplementedError
