@@ -1,19 +1,13 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore",
-        case_sensitive=False,
-    )
-
     app_env: str = "local"
     database_url: str
     llm_provider: str = "openai"
     openai_api_key: str = ""
-    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     anthropic_api_key: str = ""
+    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     allowed_origins: str = "http://localhost:3000"
     app_secret: str = ""
     embedding_dim: int = 384
@@ -28,6 +22,9 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
+        case_sensitive = False
+        extra = "ignore"
 
 
 settings = Settings()
