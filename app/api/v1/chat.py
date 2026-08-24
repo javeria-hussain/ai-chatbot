@@ -12,9 +12,9 @@ from app.core.logging_config import logger
 from app.db.session import get_db
 from app.leads.lead_service import (
     create_draft_lead,
-    finalize_if_complete,
     get_lead_for_session,
     missing_fields,
+    try_extract_and_update,
 )
 from app.leads.notification_service import send_lead_notification
 from app.leads.validators import validate_field
@@ -48,16 +48,25 @@ async def send_message(
     field_error = None
     just_completed = False
     notification_sent = False
+    missing = []
+    lead_capture_required = False
 
     if lead is None and intent in LEAD_TRIGGER_INTENTS:
         lead = await create_draft_lead(db, session.id)
 
     if lead and lead.status != "complete":
-        missing = missing_fields(lead)
+        missing, field_error, just_completed = await try_extract_and_update(
+            db, lead, payload.message
+        )
         lead_capture_required = len(missing) > 0
-    else:
-        missing = []
-        lead_capture_required = False
+
+        if just_completed:
+            try:
+                await send_lead_notification(db,session, lead)
+                notification_sent = True
+            except Exception as e:
+                logger.error(f"Lead notification failed: {e}")
+                notification_sent = False
 
     try:
         result = await orchestrator.get_response(
