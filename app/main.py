@@ -30,7 +30,7 @@ ALLOWED_ORIGINS = [
     "https://www.moinsystemsai.com",
     "https://moinsystemsai.com",
 ]
-if settings.ENVIRONMENT != "production":
+if settings.environment != "production":
     ALLOWED_ORIGINS.append("http://localhost:3000")
     ALLOWED_ORIGINS.append("http://localhost:5173")
 
