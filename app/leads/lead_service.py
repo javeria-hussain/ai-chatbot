@@ -57,8 +57,6 @@ async def get_lead_for_session(
     return result.scalars().first()
 
 
-
-
 import re
 from app.leads.validators import validate_field
 
@@ -135,9 +133,9 @@ async def try_extract_and_update(
                 await update_lead_field(db, lead, "name", name_val)
                 updated_any = True
 
-    still_missing = missing_fields(lead)
+        still_missing = missing_fields(lead)
     just_completed = False
-    if updated_any and not still_missing:
+    if not still_missing:
         just_completed = await finalize_if_complete(db, lead)
 
     return still_missing, field_error, just_completed
