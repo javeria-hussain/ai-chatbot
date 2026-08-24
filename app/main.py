@@ -57,3 +57,8 @@ app.include_router(health_router, prefix="/api/v1")
 app.include_router(chat_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
 app.include_router(leads.router, prefix="/api/v1", tags=["leads"])
+
+
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "FastAPI AI Chatbot is running on Vercel!"}
