@@ -67,12 +67,13 @@ async def send_message(
 
         if just_completed:
             try:
-                await send_lead_notification(db,session, lead)
-                notification_sent = True
+                result = await send_lead_notification(db, session, lead)
+                notification_sent = bool(result and result.success)
+                if not notification_sent:
+                    logger.error(f"Lead notification failed: {getattr(result, 'error', 'unknown')}")
             except Exception as e:
-                logger.error(f"Lead notification failed: {e}")
+                logger.error(f"Lead notification exception: {e}")
                 notification_sent = False
-
     try:
         result = await orchestrator.get_response(
             db=db,
