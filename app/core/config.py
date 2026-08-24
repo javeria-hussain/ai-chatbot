@@ -1,7 +1,13 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+        case_sensitive=False,
+    )
+
     app_env: str = "local"
     database_url: str
     llm_provider: str = "openai"
@@ -15,10 +21,10 @@ class Settings(BaseSettings):
     rag_similarity_threshold: float = 0.35
     groq_api_key: str = ""
     llm_model: str = "llama-3.3-70b-versatile"
-    RESEND_API_KEY: str
-    NOTIFICATION_FROM_EMAIL: str
-    NOTIFICATION_TO_EMAIL: str
-    ENVIRONMENT: str = "development"
+    resend_api_key: str
+    notification_from_email: str
+    notification_to_email: str
+    environment: str = "development"
 
     class Config:
         env_file = ".env"
