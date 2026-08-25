@@ -13,7 +13,7 @@ async def send_lead_notification(db, session, lead) -> EmailResult:
 
     provider = ResendProvider()
     result = await provider.send_email(
-        to=settings.NOTIFICATION_TO_EMAIL,
+        to=settings.notification_to_email,
         subject=subject,
         html_body=html_body,
     )
