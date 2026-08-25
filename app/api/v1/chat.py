@@ -70,7 +70,7 @@ async def send_message(
                 result = await send_lead_notification(db, session, lead)
                 notification_sent = bool(result and result.success)
                 if not notification_sent:
-                    logger.error(f"Lead notification failed: {getattr(result, 'error', 'unknown')}")
+                    logger.warning(f"Lead notification failed: {getattr(result, 'error', 'unknown')}")
             except Exception as e:
                 logger.error(f"Lead notification exception: {e}")
                 notification_sent = False
