@@ -10,7 +10,7 @@ RETRY_DELAY_SECONDS = 1.5
 
 class ResendProvider(EmailProvider):
     def __init__(self):
-        resend.api_key = settings.RESEND_API_KEY
+        resend.api_key = settings.resend_api_key
 
     async def send_email(self, to: str, subject: str, html_body: str) -> EmailResult:
         last_error = None
@@ -19,7 +19,7 @@ class ResendProvider(EmailProvider):
             try:
                 response = resend.Emails.send(
                     {
-                        "from": settings.NOTIFICATION_FROM_EMAIL,
+                        "from": settings.notification_from_email,
                         "to": [to],
                         "subject": subject,
                         "html": html_body,
